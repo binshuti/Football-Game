@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mini Soccer Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #020617;
+      --card: #0f172a;
+      --accent: #22c55e;
+      --accent-soft: rgba(34, 197, 94, 0.25);
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --danger: #ef4444;
+      --border-subtle: #1f2937;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #065f46, #020617 55%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem 1rem 3rem;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 960px;
+    }
+
+    .card {
+      background: linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.94));
+      border-radius: 1.25rem;
+      border: 1px solid var(--border-subtle);
+      box-shadow:
+          0 24px 60px rgba(0, 0, 0, 0.75),
+          0 0 0 1px rgba(148, 163, 184, 0.12);
+      overflow: hidden;
+    }
+
+    header {
+      padding: 1.75rem 2rem 1.25rem;
+      border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .title-block h1 {
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    .ball-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #fefce8, #eab308 60%, #92400e 100%);
+      box-shadow: 0 0 16px rgba(250, 204, 21, 0.95);
+    }
+
+    .subtitle {
+      margin-top: .25rem;
+      color: var(--text-muted);
+      font-size: .95rem;
+    }
+
+    .tagline {
+      margin-top: .25rem;
+      color: var(--accent);
+      font-size: .9rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .header-actions {
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+      align-items: flex-end;
+    }
+
+    .pill {
+      padding: .35rem .85rem;
+      border-radius: 999px;
+      background: rgba(15, 118, 110, 0.18);
+      border: 1px solid rgba(34, 211, 238, 0.45);
+      color: #a5f3fc;
+      font-size: .75rem;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: .5rem;
+    }
+
+    .btn {
+      border-radius: .75rem;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: .55rem .95rem;
+      font-size: .85rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      text-decoration: none;
+      color: var(--text-main);
+      background: rgba(15, 23, 42, 0.9);
+      cursor: pointer;
+      transition: transform 0.09s ease, box-shadow 0.09s ease, border-color 0.09s ease, background 0.09s ease;
+    }
+
+    .btn.primary {
+      background: radial-gradient(circle at top left, #22c55e, #16a34a 55%, #14532d);
+      border-color: rgba(74, 222, 128, 0.9);
+      box-shadow:
+          0 12px 26px rgba(34, 197, 94, 0.45),
+          0 0 0 1px rgba(21, 128, 61, 0.8);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 32px rgba(15, 23, 42, 0.7);
+      border-color: rgba(148, 163, 184, 0.75);
+    }
+
+    .btn.primary:hover {
+      box-shadow:
+          0 18px 42px rgba(34, 197, 94, 0.65),
+          0 0 0 1px rgba(21, 128, 61, 0.9);
+      filter: brightness(1.03);
+    }
+
+    .btn span.icon {
+      font-size: 1rem;
+    }
+
+    main {
+      padding: 1.5rem 2rem 2rem;
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1.4fr);
+      gap: 1.75rem;
+    }
+
+    @media (max-width: 780px) {
+      main {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 1.25rem 1.25rem 1.75rem;
+      }
+      header {
+        padding-inline: 1.25rem;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .header-actions {
+        align-items: flex-start;
+      }
+    }
+
+    section {
+      margin-bottom: 1.25rem;
+    }
+
+    h2 {
+      font-size: 1.05rem;
+      text-transform: uppercase;
+      letter-spacing: .16em;
+      color: var(--text-muted);
+      margin-bottom: .5rem;
+    }
+
+    p {
+      font-size: .92rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: .4rem;
+    }
+
+    .feature-list {
+      list-style: none;
+      display: grid;
+      gap: .6rem;
+      margin-top: .4rem;
+    }
+
+    .feature-list li {
+      font-size: .9rem;
+      color: var(--text-main);
+      display: flex;
+      gap: .4rem;
+      align-items: flex-start;
+    }
+
+    .feature-list li span.bullet {
+      width: .5rem;
+      height: .5rem;
+      border-radius: 999px;
+      margin-top: .27rem;
+      background: radial-gradient(circle at 30% 30%, #bbf7d0, #22c55e 70%, #15803d);
+      box-shadow: 0 0 10px rgba(74, 222, 128, 0.7);
+      flex-shrink: 0;
+    }
+
+    .code-block {
+      background: #020617;
+      border-radius: .75rem;
+      border: 1px solid rgba(30, 64, 175, 0.9);
+      padding: .75rem .9rem;
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: .8rem;
+      overflow-x: auto;
+      color: #e5e7eb;
+      margin-top: .5rem;
+      box-shadow: inset 0 0 40px rgba(15, 23, 42, 0.9);
+    }
+
+    .code-block code {
+      white-space: pre;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .35rem;
+      margin-top: .4rem;
+    }
+
+    .badge {
+      font-size: .75rem;
+      padding: .2rem .65rem;
+      border-radius: 999px;
+      border: 1px solid rgba(156, 163, 175, 0.7);
+      color: var(--text-muted);
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    .badge.green {
+      border-color: rgba(52, 211, 153, 0.85);
+      color: #a7f3d0;
+      background: rgba(6, 95, 70, 0.65);
+    }
+
+    .media-card {
+      background: radial-gradient(circle at top, rgba(22, 163, 74, 0.08), rgba(15, 23, 42, 0.96));
+      border-radius: 1rem;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      padding: .9rem;
+      display: flex;
+      flex-direction: column;
+      gap: .75rem;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.95);
+    }
+
+    .fake-screen {
+      border-radius: .75rem;
+      border: 1px solid rgba(55, 65, 81, 0.85);
+      background: radial-gradient(circle at top, #16a34a33, #020617 60%);
+      min-height: 210px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pitch {
+      position: absolute;
+      inset: 12px;
+      border-radius: .75rem;
+      border: 2px solid rgba(209, 250, 229, 0.75);
+      box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.9);
+      background: radial-gradient(circle at center, #15803d, #052e16 75%);
+    }
+
+    .pitch-center-circle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 90px;
+      height: 90px;
+      border-radius: 999px;
+      border: 2px dashed rgba(209, 250, 229, 0.8);
+      transform: translate(-50%, -50%);
+    }
+
+    .pitch-goal {
+      position: absolute;
+      left: 50%;
+      width: 80px;
+      height: 30px;
+      border-radius: .5rem;
+      border: 2px solid rgba(209, 250, 229, 0.85);
+      transform: translateX(-50%);
+    }
+
+    .pitch-goal.top {
+      top: 6%;
+    }
+
+    .pitch-goal.bottom {
+      bottom: 6%;
+    }
+
+    .pitch-player {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #fefce8, #fbbf24 60%, #b45309);
+      box-shadow:
+        0 0 16px rgba(251, 191, 36, 0.9),
+        0 0 0 4px rgba(15, 23, 42, 0.95);
+    }
+
+    .pitch-defender {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #fee2e2, #ef4444 60%, #991b1b);
+      box-shadow:
+        0 0 14px rgba(248, 113, 113, 0.9),
+        0 0 0 3px rgba(15, 23, 42, 0.95);
+    }
+
+    .pitch-label {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      font-size: .75rem;
+      color: #e5e7eb;
+      background: rgba(15, 23, 42, 0.85);
+      padding: .25rem .55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+    }
+
+    .media-caption h3 {
+      font-size: .95rem;
+      margin-bottom: .1rem;
+    }
+
+    .media-caption p {
+      font-size: .85rem;
+      margin-bottom: 0;
+    }
+
+    footer {
+      padding: .8rem 2rem 1.2rem;
+      border-top: 1px solid rgba(31, 41, 55, 0.9);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: .75rem;
+      font-size: .8rem;
+      color: var(--text-muted);
+    }
+
+    footer a {
+      color: #a5b4fc;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="card">
+      <header>
+        <div class="title-block">
+          <h1><span class="ball-dot"></span> Mini Soccer Game</h1>
+          <div class="tagline">Python · Pygame · 2D Football Experience</div>
+          <p class="subtitle">
+            A fast-paced single-player mini football game where you dribble past
+            animated defenders, survive multiple levels, and chase a global high score.
+          </p>
+        </div>
+        <div class="header-actions">
+          <div class="pill">Student Project &bull; Game Prototype</div>
+          <div class="btn-row">
+            <!-- Replace the href with your real GitHub repo link -->
+            <a class="btn primary" href="https://github.com/USERNAME/FOOTBALL-GAME" target="_blank" rel="noopener">
+              <span class="icon">⚽</span>
+              <span>View Source on GitHub</span>
+            </a>
+            <a class="btn" href="#how-to-play">
+              <span class="icon">📖</span>
+              <span>How to Play</span>
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <div>
+          <section>
+            <h2>Overview</h2>
+            <p>
+              Mini Soccer Game is a 2D arcade-style football experience built in Python using
+              Pygame. The player controls a striker (the ball) from a top-down perspective,
+              weaving between moving defenders to score goals and progress through increasingly
+              difficult levels.
+            </p>
+            <p>
+              Under the hood, the game uses a clean Model–View–Controller structure and includes
+              features like smooth ball physics, animated defenders, lives, and a persistent high score
+              saved to disk using JSON.
+            </p>
+          </section>
+
+          <section>
+            <h2>Key Features</h2>
+            <ul class="feature-list">
+              <li><span class="bullet"></span>Multiple levels with increasing difficulty and more defenders.</li>
+              <li><span class="bullet"></span>Smooth dribbling with inertia, friction, and “escape assist” when defenders get close.</li>
+              <li><span class="bullet"></span>Defenders move horizontally and vertically in dynamic patterns with simple animation.</li>
+              <li><span class="bullet"></span>Crowd ambience, goal and tackle sound effects (WAV audio via <code>pygame.mixer</code>).</li>
+              <li><span class="bullet"></span>HUD with score, lives, and a high score stored in <code>highscore.json</code>.</li>
+              <li><span class="bullet"></span>Start menu and replayable game-over flow (no need to restart Python each time).</li>
+            </ul>
+            <div class="badge-row">
+              <span class="badge green">Python · Pygame</span>
+              <span class="badge">MVC Architecture</span>
+              <span class="badge">JSON Persistence</span>
+              <span class="badge">Single-Player</span>
+            </div>
+          </section>
+
+          <section id="how-to-play">
+            <h2>How to Run &amp; Play</h2>
+            <p><strong>1. Install dependencies</strong></p>
+            <div class="code-block">
+              <code>
+pip install -r requirements.txt
+              </code>
+            </div>
+
+            <p style="margin-top:.6rem;"><strong>2. Launch the game</strong></p>
+            <div class="code-block">
+              <code>
+python main.py
+              </code>
+            </div>
+
+            <p style="margin-top:.6rem;"><strong>3. Controls</strong></p>
+            <ul class="feature-list">
+              <li><span class="bullet"></span><strong>Arrow keys</strong> &mdash; move and dribble the ball.</li>
+              <li><span class="bullet"></span><strong>Score</strong> by reaching the goal at the top of the field.</li>
+              <li><span class="bullet"></span><strong>Avoid defenders</strong>&nbsp;&mdash; collisions cost you a life.</li>
+              <li><span class="bullet"></span>On game over, press <strong>R</strong> to play again or <strong>Q / ESC</strong> to quit.</li>
+            </ul>
+          </section>
+        </div>
+
+        <aside>
+          <div class="media-card">
+            <div class="fake-screen">
+              <div class="pitch">
+                <div class="pitch-center-circle"></div>
+                <div class="pitch-goal top"></div>
+                <div class="pitch-goal bottom"></div>
+
+                <!-- Player (ball) -->
+                <div class="pitch-player" style="left: 48%; bottom: 12%;"></div>
+
+                <!-- Defenders -->
+                <div class="pitch-defender" style="left: 28%; top: 26%;"></div>
+                <div class="pitch-defender" style="left: 68%; top: 42%;"></div>
+                <div class="pitch-defender" style="left: 38%; top: 62%;"></div>
+
+                <div class="pitch-label">Top-down view (prototype)</div>
+              </div>
+            </div>
+            <div class="media-caption">
+              <h3>Top-Down Football Prototype</h3>
+              <p>
+                The desktop version runs as a Pygame window. This mockup illustrates the
+                top-down field layout with a striker, moving defenders, and a central goal.
+              </p>
+            </div>
+          </div>
+
+          <section style="margin-top:1.1rem;">
+            <h2>Tech Highlights</h2>
+            <p>
+              The project is structured using a simple Model–View–Controller pattern:
+            </p>
+            <ul class="feature-list">
+              <li><span class="bullet"></span><strong>Model</strong>: game logic, levels, defenders, and ball movement helpers.</li>
+              <li><span class="bullet"></span><strong>View</strong>: Pygame rendering, animation, HUD, and menus.</li>
+              <li><span class="bullet"></span><strong>Controller</strong>: keyboard input and level selection.</li>
+            </ul>
+          </section>
+        </aside>
+      </main>
+
+      <footer>
+        <span>Built with ❤️ using Python &amp; Pygame.</span>
+        <span>View the repository on <a href="https://github.com/USERNAME/FOOTBALL-GAME" target="_blank" rel="noopener">GitHub</a>.</span>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>
